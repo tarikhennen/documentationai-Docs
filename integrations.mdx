@@ -1,0 +1,202 @@
+---
+title: Integrations and API Access
+description: Connect Cercle Talents to external tools and leverage the API for advanced customization in Enterprise plans.
+---
+
+## Overview
+
+Cercle Talents supports seamless integrations with popular tools to streamline your recruitment workflow. You can connect third-party apps for ATS synchronization, set up webhooks for real-time notifications, and use the API for custom data operations. These features are available in Pro and Enterprise plans.
+
+<Callout kind="info">
+API access and advanced integrations require an Enterprise plan. Contact sales for upgrade details.
+</Callout>
+
+## Popular Third-Party Integrations
+
+Connect Cercle Talents to your existing tools using pre-built integrations.
+
+<Columns cols={3}>
+  <Card title="LinkedIn" icon="users" href="https://linkedin.com">
+    Sync candidate profiles and job postings automatically.
+  </Card>
+  <Card title="Slack" icon="message-circle" href="https://slack.com">
+    Receive real-time notifications for new matches and applications.
+  </Card>
+  <Card title="Google Workspace" icon="mail" href="https://workspace.google.com">
+    Integrate with Gmail and Drive for seamless document management.
+  </Card>
+</Columns>
+
+## Setting Up Webhooks
+
+Webhooks enable real-time updates from Cercle Talents to your systems. Configure them in your dashboard under Settings > Webhooks.
+
+<Steps>
+  <Step title="Create Webhook" icon="plus">
+    Navigate to the Webhooks section and click "New Webhook".
+    
+    Specify the event type, such as `candidate.updated` or `job.applied`.
+  </Step>
+  <Step title="Add Endpoint URL" icon="link">
+    Enter your secure endpoint, e.g., `https://your-webhook-url.com/webhook`.
+    
+````javascript
+{
+  "event": "candidate.updated",
+  "data": {
+    "id": "cand_123",
+    "name": "John Doe",
+    "status": "matched"
+  }
+}
+````
+  </Step>
+  <Step title="Verify and Test" icon="check-circle">
+    Send a test event and verify receipt on your server.
+    
+    Enable the webhook once confirmed.
+  </Step>
+</Steps>
+
+## API Authentication
+
+Authenticate API requests using Bearer tokens. Generate your token in the dashboard under API Keys.
+
+<Tabs>
+  <Tab title="JavaScript" icon="code">
+    Use `fetch` with the Authorization header.
+    
+````javascript
+const response = await fetch('https://api.example.com/v1/candidates', {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${YOUR_API_KEY}`,
+    'Content-Type': 'application/json'
+  }
+});
+````
+  </Tab>
+  <Tab title="Python" icon="python">
+    Use `requests` library for authenticated calls.
+    
+````python
+import requests
+
+headers = {
+    'Authorization': f'Bearer {YOUR_API_KEY}',
+    'Content-Type': 'application/json'
+}
+response = requests.get('https://api.example.com/v1/candidates', headers=headers)
+````
+  </Tab>
+</Tabs>
+
+<ParamField header="Authorization" param-type="string" required="true">
+  Bearer token for authentication: `Bearer YOUR_API_KEY`.
+</ParamField>
+
+## API Endpoints
+
+Key endpoints for managing candidates and jobs.
+
+<Request tabs="JavaScript,cURL" show-lines="true">
+````javascript
+const response = await fetch('https://api.example.com/v1/candidates', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${YOUR_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'Jane Smith',
+    skills: ['JavaScript', 'Recruitment'],
+    experience: 5
+  })
+});
+````
+````bash
+curl -X POST https://api.example.com/v1/candidates \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Smith",
+    "skills": ["JavaScript", "Recruitment"],
+    "experience": 5
+  }'
+````
+</Request>
+
+<Response tabs="200,400">
+````json
+{
+  "id": "cand_456",
+  "name": "Jane Smith",
+  "skills": ["JavaScript", "Recruitment"],
+  "status": "active"
+}
+````
+````json
+{
+  "error": "Invalid token",
+  "message": "Authentication failed"
+}
+````
+</Response>
+
+<ResponseField name="id" field-type="string" required="true">
+  Unique candidate identifier.
+</ResponseField>
+
+<ResponseField name="status" field-type="string">
+  Current status: `active`, `matched`, or `rejected`.
+</ResponseField>
+
+## Building Custom Integrations
+
+For advanced data sync, build custom scripts to pull candidates into your internal database.
+
+<CodeGroup tabs="Node.js,Python">
+````javascript
+// Node.js example: Sync candidates daily
+const cron = require('node-cron');
+cron.schedule('0 0 * * *', async () => {
+  const res = await fetch('https://api.example.com/v1/candidates?limit=100', {
+    headers: { 'Authorization': `Bearer ${process.env.API_KEY}` }
+  });
+  const candidates = await res.json();
+  // Sync to your DB
+  console.log(`Synced ${candidates.length} candidates`);
+});
+````
+````python
+# Python example: Sync with cron job
+import requests
+import schedule
+import time
+
+def sync_candidates():
+    headers = {'Authorization': f'Bearer {YOUR_API_KEY}'}
+    res = requests.get('https://api.example.com/v1/candidates?limit=100', headers=headers)
+    candidates = res.json()
+    # Sync to your DB
+    print(f'Synced {len(candidates)} candidates')
+
+schedule.every().day.at('00:00').do(sync_candidates)
+````
+</CodeGroup>
+
+<Callout kind="tip">
+Test all integrations in a staging environment first. Monitor webhook deliveries in the dashboard for reliability.
+</Callout>
+
+## Next Steps
+
+<Expandable title="Troubleshooting Common Issues" default-open="false">
+
+- **Webhook failures**: Check endpoint logs and verify HTTPS usage.
+- **API rate limits**: Enterprise plans offer higher limits; monitor headers for `X-RateLimit-Remaining`.
+- **Token expiration**: Regenerate keys periodically for security.
+
+</Expandable>
+
+Explore [Quickstart](/quickstart) for initial setup or [Authentication](/authentication) for detailed token management.
